@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
@@ -6,6 +7,9 @@ import org.junit.jupiter.api.Test;
 
 
 class LogListTest {
+
+    private int iterationCount = 100_000;
+
     @Test
     void add() {
         List<String> expected = new ArrayList<>();
@@ -91,68 +95,64 @@ class LogListTest {
 
     @Test
     void addingToFront() {
-        int iterations = 100_000;
-
         long listTime = measureTime(() -> {
             List<String> list = new LinkedList<>();
-            for (int i = 0; i < iterations; ++i) {
+            for (int i = 0; i < iterationCount; ++i) {
                 list.add(0, String.valueOf(i));
             }
         });
 
         long arrayTime = measureTime(() -> {
             List<String> array = new ArrayList<>();
-            for (int i = 0; i < iterations; ++i) {
+            for (int i = 0; i < iterationCount; ++i) {
                 array.add(0, String.valueOf(i));
             }
         });
 
         long treeTime = measureTime(() -> {
             LogList<String> tree = new LogList<>();
-            for (int i = 0; i < iterations; ++i) {
+            for (int i = 0; i < iterationCount; ++i) {
                 tree.add(0, String.valueOf(i));
             }
         });
 
         printMeasureResults("add to front", listTime, arrayTime, treeTime);
+        Assertions.assertTrue(listTime < treeTime && treeTime < arrayTime);
     }
 
     @Test
     void addingToMiddle() {
-        int iterations = 100_000;
-
         long listTime = measureTime(() -> {
             List<String> list = new LinkedList<>();
-            for (int i = 0; i < iterations; ++i) {
+            for (int i = 0; i < iterationCount; ++i) {
                 list.add(list.size() / 2, String.valueOf(i));
             }
         });
 
         long arrayTime = measureTime(() -> {
             List<String> array = new ArrayList<>();
-            for (int i = 0; i < iterations; ++i) {
+            for (int i = 0; i < iterationCount; ++i) {
                 array.add(array.size() / 2, String.valueOf(i));
             }
         });
 
         long treeTime = measureTime(() -> {
             LogList<String> tree = new LogList<>();
-            for (int i = 0; i < iterations; ++i) {
+            for (int i = 0; i < iterationCount; ++i) {
                 tree.add(tree.size() / 2, String.valueOf(i));
             }
         });
 
         printMeasureResults("add to middle", listTime, arrayTime, treeTime);
+        Assertions.assertTrue(treeTime < listTime && treeTime < arrayTime);
     }
 
     @Test
     void addingToEnd() {
-        int iterations = 100_000;
-
         long listTime = measureTime(() -> {
             List<String> list = new LinkedList<>();
             list.add("");
-            for (int i = 0; i < iterations; ++i) {
+            for (int i = 0; i < iterationCount; ++i) {
                 list.add(list.size() - 1, String.valueOf(i));
             }
         });
@@ -160,7 +160,7 @@ class LogListTest {
         long arrayTime = measureTime(() -> {
             List<String> array = new ArrayList<>();
             array.add("");
-            for (int i = 0; i < iterations; ++i) {
+            for (int i = 0; i < iterationCount; ++i) {
                 array.add(array.size() - 1, String.valueOf(i));
             }
         });
@@ -168,11 +168,155 @@ class LogListTest {
         long treeTime = measureTime(() -> {
             LogList<String> tree = new LogList<>();
             tree.add("");
-            for (int i = 0; i < iterations; ++i) {
+            for (int i = 0; i < iterationCount; ++i) {
                 tree.add(tree.size() - 1, String.valueOf(i));
             }
         });
 
         printMeasureResults("add to end", listTime, arrayTime, treeTime);
+        Assertions.assertTrue(treeTime > listTime && treeTime > arrayTime);
     }
+
+    @Test
+    void removingFromFront() {
+        List<String> list = new LinkedList<>();
+        List<String> array = new ArrayList<>();
+        LogList<String> tree = new LogList<>();
+
+        for (int i = 0; i < iterationCount; ++i) {
+            list.add(String.valueOf(i));
+            array.add(String.valueOf(i));
+            tree.add(String.valueOf(i));
+        }
+
+        long listTime = measureTime(() -> {
+            for (int i = 0; i < iterationCount; ++i) {
+                list.remove(0);
+            }
+        });
+
+        long arrayTime = measureTime(() -> {
+            for (int i = 0; i < iterationCount; ++i) {
+                array.remove(0);
+            }
+        });
+
+        long treeTime = measureTime(() -> {
+            for (int i = 0; i < iterationCount; ++i) {
+                tree.remove(0);
+            }
+        });
+
+        printMeasureResults("remove from front", listTime, arrayTime, treeTime);
+        Assertions.assertTrue(listTime < treeTime && treeTime < arrayTime);
+    }
+
+    @Test
+    void removingFromMiddle() {
+        List<String> list = new LinkedList<>();
+        List<String> array = new ArrayList<>();
+        LogList<String> tree = new LogList<>();
+
+        for (int i = 0; i < iterationCount; ++i) {
+            list.add(String.valueOf(i));
+            array.add(String.valueOf(i));
+            tree.add(String.valueOf(i));
+        }
+
+        long listTime = measureTime(() -> {
+            for (int i = 0; i < iterationCount; ++i) {
+                list.remove(list.size() / 2);
+            }
+        });
+
+        long arrayTime = measureTime(() -> {
+            for (int i = 0; i < iterationCount; ++i) {
+                array.remove(array.size() / 2);
+            }
+        });
+
+        long treeTime = measureTime(() -> {
+            for (int i = 0; i < iterationCount; ++i) {
+                tree.remove(tree.size() / 2);
+            }
+        });
+
+        printMeasureResults("remove from middle", listTime, arrayTime, treeTime);
+        Assertions.assertTrue(treeTime < listTime && treeTime < arrayTime);
+    }
+
+    @Test
+    void removingFromEnd() {
+        List<String> list = new LinkedList<>();
+        List<String> array = new ArrayList<>();
+        LogList<String> tree = new LogList<>();
+
+        for (int i = 0; i < iterationCount; ++i) {
+            list.add(String.valueOf(i));
+            array.add(String.valueOf(i));
+            tree.add(String.valueOf(i));
+        }
+
+        long listTime = measureTime(() -> {
+            for (int i = 0; i < iterationCount - 1; ++i) {
+                list.remove(list.size() - 1);
+            }
+        });
+
+        long arrayTime = measureTime(() -> {
+            for (int i = 0; i < iterationCount - 1; ++i) {
+                array.remove(array.size() - 1);
+            }
+        });
+
+        long treeTime = measureTime(() -> {
+            for (int i = 0; i < iterationCount - 1; ++i) {
+                tree.remove(tree.size() - 1);
+            }
+        });
+
+        printMeasureResults("remove from end", listTime, arrayTime, treeTime);
+        Assertions.assertTrue(treeTime > listTime && treeTime > arrayTime);
+    }
+
+    @Test
+    void gettingByIndex() {
+        List<String> list = new LinkedList<>();
+        List<String> array = new ArrayList<>();
+        LogList<String> tree = new LogList<>();
+
+        for (int i = 0; i < iterationCount; ++i) {
+            list.add(String.valueOf(i));
+            array.add(String.valueOf(i));
+            tree.add(String.valueOf(i));
+        }
+
+        List<Integer> indexes = new ArrayList<>();
+        for (int i = 0; i < iterationCount; ++i) {
+            indexes.add(i);
+        }
+        Collections.shuffle(indexes);
+
+        long listTime = measureTime(() -> {
+            for (int index: indexes) {
+                String str = list.get(index);
+            }
+        });
+
+        long arrayTime = measureTime(() -> {
+            for (int index: indexes) {
+                String str = array.get(index);
+            }
+        });
+
+        long treeTime = measureTime(() -> {
+            for (int index: indexes) {
+                String str = tree.get(index);
+            }
+        });
+
+        printMeasureResults("remove from end", listTime, arrayTime, treeTime);
+        Assertions.assertTrue(arrayTime < treeTime && treeTime < listTime);
+    }
+
 }
